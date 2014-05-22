@@ -22,6 +22,7 @@
 * You can automatically organize your scripts into directories by the categories you specified.
 
 ### Other points:
+* You _will_ need to write simple wrapper files for your scripts.
 * ss is not for testing or debugging.
 * ss is not for scheduling of scripts.
 * do not apply to forehead.
