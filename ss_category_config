@@ -1,6 +1,6 @@
 #This file can have comments.
 %
-TOP LEVEL CATEGORY ONE
+TOP LEVEL CATEGORY ONE::really, all items should have a description.
 TOP LEVEL CATEGORY TWO::just the second category
 TOP LEVEL CATEGORY THREE::the third category
 TOP LEVEL SCRIPT FOUR::number four here
@@ -8,7 +8,7 @@ TOP LEVEL SCRIPT FIVE::Don't ask questions
 
 #Comments here
 %TOP LEVEL CATEGORY ONE
-SECOND TIER CATEGORY ONE ONE
+SECOND TIER CATEGORY ONE ONE::category listings should not have descriptions.
 SECOND TIER CATEGORY ONE TWO
 SECOND TIER CATEGORY ONE THREE
 
