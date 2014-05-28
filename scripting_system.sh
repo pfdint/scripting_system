@@ -11,6 +11,13 @@
 
 set -o errexit
 
+SS_debug()
+{
+  echo "==="
+  echo "$1"
+  echo "==="
+}
+
 SS_Extract_Current_Category()
 {
   
@@ -20,9 +27,9 @@ SS_Extract_Current_Category()
   local INDEX_END=$2
   local TARGET_INDEX=0
   
-  for ((index=$INDEX_BEGIN; index < $INDEX_END; index++)); do
-    SS_CURRENT_CATEGORY_ITEM_ARRAY[$TARGET_INDEX]=${SS_CATEGORIES_FILE_ARRAY[$index]%%::*}
-    SS_CURRENT_CATEGORY_DESCRIPTION_ARRAY[$TARGET_INDEX]=${SS_CATEGORIES_FILE_ARRAY[$index]##*::}
+  for ((index3=$INDEX_BEGIN; index3 < $INDEX_END; index3++)); do
+    SS_CURRENT_CATEGORY_ITEM_ARRAY[$TARGET_INDEX]=${SS_CATEGORIES_FILE_ARRAY[$index3]%%::*}
+    SS_CURRENT_CATEGORY_DESCRIPTION_ARRAY[$TARGET_INDEX]=${SS_CATEGORIES_FILE_ARRAY[$index3]##*::}
     TARGET_INDEX+=1
   done
   
@@ -42,13 +49,19 @@ SS_Find_Current_Category()
   local CATEGORY_TO_FIND=$1
   local INDEX_BEGIN=0
   local INDEX_END=0
+  local BEGIN_FOUND=false
   
-  for ((index=1; index < ${#SS_CATEGORIES_FILE_ARRAY[@]}; index++)); do
-    if [[ ${SS_CATEGORIES_FILE_ARRAY:1} == $CATEGORY_TO_FIND ]]; then
-      INDEX_BEGIN=$index
-    elif [[ ${SS_CATEGORIES_FILE_ARRAY:0:1} == "%" ]]; then
-      INDEX_END=$index
+  for ((index2=1; index2 < ${#SS_CATEGORIES_FILE_ARRAY[@]}; index2++)); do
+    if [[ ${SS_CATEGORIES_FILE_ARRAY[$index2]:1} == $CATEGORY_TO_FIND ]]; then
+      INDEX_BEGIN=$index2
+      BEGIN_FOUND=true
+SS_debug "start category"
+    elif [[ ${SS_CATEGORIES_FILE_ARRAY[$index2]:0:1} == "%" && $BEGIN_FOUND ]]; then
+      INDEX_END=$index2
+SS_debug "category ended"
+      break
     fi
+SS_debug "${SS_CATEGORIES_FILE_ARRAY[$index2]:1}"
   done
   
   # Now that we know our range, we will have another function extract it.
@@ -66,14 +79,17 @@ cat $SS_CATEGORIES_FILE_RAW | sed 's/^#.*//g' | sed '/^$/d' | tee $SS_CATEGORIES
 
 mapfile SS_CATEGORIES_FILE_ARRAY < $SS_CATEGORIES_STERILIZED_FILE
 
-for ((index=1; index < ${#SS_CATEGORIES_FILE_ARRAY[@]}; index++)); do
-  SS_MASTER_ITEMS_ARRAY[$index]=${SS_CATEGORIES_FILE_ARRAY[$index]%%::*}
-  SS_MASTER_DESCRIPTIONS_ARRAY[$index]=${SS_CATEGORIES_FILE_ARRAY[$index]##*::}
+for ((index1=1; index1 < ${#SS_CATEGORIES_FILE_ARRAY[@]}; index1++)); do
+  SS_MASTER_ITEMS_ARRAY[$index1]=${SS_CATEGORIES_FILE_ARRAY[$index1]%%::*}
+  SS_MASTER_DESCRIPTIONS_ARRAY[$index1]=${SS_CATEGORIES_FILE_ARRAY[$index1]##*::}
 done
 
 #invoke all the necessary functions to display a menu and take input
 
-SS_Find_Current_Category "TOP LEVEL CATEGORY ONE"
+SS_Find_Current_Category "TOP LEVEL CATEGORY TWO"
+
+echo "---"
+echo ${SS_CURRENT_CATEGORY_ITEM_ARRAY[@]}
 
 #while dislpaying menu
 ##parse category currentcategory
