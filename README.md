@@ -23,6 +23,7 @@
 
 ### Other points:
 * You _will_ need to write simple wrapper files for your scripts.
+* There are NO dependencies other than Bash >= 4 . It's all done using builtins.
 * ss is not for testing or debugging.
 * ss is not for scheduling of scripts.
 * do not apply to forehead.

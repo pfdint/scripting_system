@@ -165,6 +165,7 @@ SS_Display_Category()
         echo "$INDENT$IDENTIFIER${CATEGORY_ITEM_TITLES[$ITEM_NUMBER]} $PADDING$PERMANENT_PADDING ${CATEGORY_ITEM_DESCRIPTIONS[$ITEM_NUMBER]}"
     done
     
+    echo
     echo "$INDENT----"
     echo "${INDENT}p  - return to previous menu"
     echo "${INDENT}q  - quit"
