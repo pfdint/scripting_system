@@ -1,24 +1,37 @@
 #This file can have comments.
 %
-TOP LEVEL CATEGORY ONE::really, all items should have a description.
-TOP LEVEL CATEGORY TWO::just the second category
-TOP LEVEL CATEGORY THREE::the third category
-TOP LEVEL SCRIPT FOUR::number four here
-TOP LEVEL SCRIPT FIVE::Don't ask questions
+top level category one::this is the first description 1
+top level category two::description for second category 2
+top level category three::third category description 3
+top_level_script_one::fourth item on top level 4
+top_level_script_two::fifth top level item 5
 
 #Comments here
-%TOP LEVEL CATEGORY ONE
-SECOND TIER CATEGORY ONE ONE::category listings should not have descriptions.
-SECOND TIER CATEGORY ONE TWO
-SECOND TIER CATEGORY ONE THREE
+%top level category one
+second level category one::1-1
+second level category two::1-2
+second_level_script_one::1-3
 
-%TOP LEVEL CATEGORY TWO
-SECOND TIER CATEGORY TWO ONE::description of sorts
-SECOND TIER CATEGORY TWO TWO
+%top level category two
+second_level_script_one::2-1
+second_level_script_two::2-2
+second_level_script_three::2-3
 
-%TOP LEVEL CATEGORY THREE
-SECOND TIER SCRIPT ONE
-SECOND TIER SCRIPT TWO
+%top level category three
+second level category three::3-1
+second_level_script_one:3-2
+
+%second level category one
+third_level_script_one::1-1-1
+third_level_script_two::1-1-2
+third_level_script_three::1-1-3
+
+%second level category two
+third_level_script_one::1-2-1
+third_level_script_two::1-2-2
+
+%second level category three
+third_level_script_one::1-3-1
 
 #etc, etc. If the item isn't
 #defined as a category later on in the group,
