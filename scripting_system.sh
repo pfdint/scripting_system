@@ -7,6 +7,49 @@
 
 set -o errexit
 
+SS_Go_Next_Category()
+{
+    
+    # Rename arguments
+    #
+    local NEXT_CATEGORY="$1"
+    
+    SS_PAGE_NUMBER=$(( $SS_PAGE_NUMBER + 1 ))
+    
+    SS_CATEGORY_HISTORY[$SS_PAGE_NUMBER]="$NEXT_CATEGORY"
+    
+    SS_NEXT_CATEGORY="$NEXT_CATEGORY"
+    
+}
+
+SS_Go_Previous_Category()
+{
+    
+    unset SS_CATEGORY_HISTORY[$SS_PAGE_NUMBER]
+    SS_PAGE_NUMBER=$(( $SS_PAGE_NUMBER - 1 ))
+    SS_NEXT_CATEGORY="${SS_CATEGORY_HISTORY[$SS_PAGE_NUMBER]}"
+    
+}
+
+SS_Read_Categories_File()
+{
+    
+    mapfile -t SS_RAW_CATEGORY_ARRAY_FILE < ss_category_config
+    
+    local RAW_LINE
+    local INDEX=0
+    
+    for RAW_LINE in "${SS_RAW_CATEGORY_ARRAY_FILE[@]}"; do
+        if [[ !($RAW_LINE =~ ^#.*) ]] && [[ !($RAW_LINE =~ ^$) ]]; then
+            SS_CATEGORY_ARRAY[$INDEX]="$RAW_LINE"
+            INDEX=$(( $INDEX + 1 ))
+        fi
+    done
+    
+#    mapfile -t SS_CATEGORY_ARRAY < categories.config
+    
+}
+
 # Globals used: $SS_IS_ITEM_CATEGORY
 # $SS_CATEGORY_ARRAY
 # Takes a category name, flips the boolean true if it's a category, false if not.
@@ -20,7 +63,7 @@ SS_Determine_If_Category()
     
     local SS_LINE
     
-    for SS_LINE in ${SS_CATEGORY_ARRAY[@]}; do
+    for SS_LINE in "${SS_CATEGORY_ARRAY[@]}"; do
         if [[ $SS_LINE == "%$SS_NEXT_CATEGORY" ]]; then
             SS_IS_ITEM_CATEGORY=true
             break
@@ -31,7 +74,7 @@ SS_Determine_If_Category()
 
 SS_Display_Script()
 {
-    echo NYI
+    echo -n "NYI"
 }
 
 SS_Display_Item()
@@ -136,16 +179,18 @@ SS_Display_Category()
     elif [[ $SELECTION =~ ^[[:digit:]]+$ ]]; then
         if [[ $SELECTION -le ${#CATEGORY_ITEMS[@]} ]]; then
             echo ${CATEGORY_ITEM_TITLES[$SELECTION - 1]} will be the next menu
+            SS_Go_Next_Category "${CATEGORY_ITEM_TITLES[$SELECTION - 1]}"
         else
             echo not a valid selection for this menu
         fi
-        elif [[ "$SELECTION" =~ %[pq]$ ]]; then
+        elif [[ "$SELECTION" =~ ^[pq]$ ]]; then
             case "$SELECTION" in
                 p)
-                    echo p was selected
+                    SS_Go_Previous_Category
                     ;;
                 q)
-                    echo q was selected
+                    SS_IS_DISPLAYING_MENUS=false
+                    exit 0
                     ;;
             esac
         else
@@ -154,6 +199,8 @@ SS_Display_Category()
     
 }
 
-mapfile -t SS_CATEGORY_ARRAY < categories.config
-SS_NEXT_CATEGORY=$1
-SS_Display_Item "$1"
+SS_Read_Categories_File
+SS_IS_DISPLAYING_MENUS=true
+while [[ "$SS_IS_DISPLAYING_MENUS" == true ]]; do
+    SS_Display_Item "$SS_NEXT_CATEGORY"
+done
