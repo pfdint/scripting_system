@@ -1,6 +1,6 @@
 # scripting_system
 
-## scripting_system is a system for simplified script usage, written in bash.
+## scripting_system is a system for simplified script usage, written in Bash.
 
 ### Using ss:
 
@@ -15,15 +15,16 @@
 * You can specify dependencies for your script, files which must be present for it to execute.
 * You can preset messages such as examples for the most common usages of your script.
 * You can apply this to existing utilities which are complex, such as tar.
-* You can manage scripts which are running in the background.
+* You can manage scripts which are running in the background. (Rethinking this one)
 * You can invoke ss from the command line itself, as well as interactively.
-* You can set safety warnings and double checks for dangerous scripts.
+* You can set safety warnings and mollyguards for dangerous scripts.
 * You can use common functionality from ss in your own shell scripts, which takes the form of well made functions. Even if you want to move away from ss later, you can just copy the code from ss and paste it in your own script in place of the function call.
 * You can automatically organize your scripts into directories by the categories you specified.
+* The default repository has a bunch of helpful scripts which serve as examples for using ss.
 
 ### Other points:
 * You _will_ need to write simple wrapper files for your scripts.
-* There are NO dependencies other than Bash >= 4 . It's all done using builtins.
+* There are NO dependencies other than Bash >= 4.2 . It's all done using builtins.
 * ss is not for testing or debugging.
 * ss is not for scheduling of scripts.
 * do not apply to forehead.

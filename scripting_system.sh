@@ -2,94 +2,88 @@
 # scripting_system.sh
 # by pfdint
 # created: 2014-05-18
-# modified: 2014-06-19
+# modified: 2014-06-21
 # purpose: the master ss executable. currently displays menus and stuff.
-
+ 
+# If we want users to like our software we should design it to behave like a likeable person: respectful, generous, and helpful. - Alan Cooper
+ 
+# Be respectful.
+# Be generous.
+# Be Helpful.
+ 
 set -o errexit
-
-SS_Go_Next_Category()
+ 
+SS_Debug()
 {
     
-    # Rename arguments
-    #
-    local NEXT_CATEGORY="$1"
-    
-    SS_PAGE_NUMBER=$(( $SS_PAGE_NUMBER + 1 ))
-    
-    SS_CATEGORY_HISTORY[$SS_PAGE_NUMBER]="$NEXT_CATEGORY"
-    
-    SS_NEXT_CATEGORY="$NEXT_CATEGORY"
+    echo ===
+    echo $1
+    echo ===
     
 }
 
-SS_Go_Previous_Category()
+SS_Debug_Stack()
+{
+    
+    echo ===
+    for i in "${SS_CATEGORY_HISTORY[@]}"; do
+        echo $i
+    done
+    echo ===
+    
+}
+ 
+SS_Push_Category()
+{
+    
+    SS_NEXT_ITEM="$1"
+    SS_PAGE_NUMBER=$(( $SS_PAGE_NUMBER + 1 ))
+    SS_CATEGORY_HISTORY[$SS_PAGE_NUMBER]="$SS_NEXT_ITEM"
+    
+}
+
+SS_Pop_Category()
 {
     
     unset SS_CATEGORY_HISTORY[$SS_PAGE_NUMBER]
     SS_PAGE_NUMBER=$(( $SS_PAGE_NUMBER - 1 ))
-    SS_NEXT_CATEGORY="${SS_CATEGORY_HISTORY[$SS_PAGE_NUMBER]}"
+    SS_NEXT_ITEM="${SS_CATEGORY_HISTORY[$SS_PAGE_NUMBER]}"
     
 }
 
-SS_Read_Categories_File()
+SS_Compute_Target_Wrapper()
 {
     
-    mapfile -t SS_RAW_CATEGORY_ARRAY_FILE < ss_category_config
-    
-    local RAW_LINE
-    local INDEX=0
-    
-    for RAW_LINE in "${SS_RAW_CATEGORY_ARRAY_FILE[@]}"; do
-        if [[ !($RAW_LINE =~ ^#.*) ]] && [[ !($RAW_LINE =~ ^$) ]]; then
-            SS_CATEGORY_ARRAY[$INDEX]="$RAW_LINE"
-            INDEX=$(( $INDEX + 1 ))
-        fi
+    SS_TARGET_WRAPPER="$SS_LIBRARY_DIRECTORY"
+    local CATEGORY
+    for CATEGORY in "${SS_CATEGORY_HISTORY[@]}"; do
+        SS_TARGET_WRAPPER="${SS_TARGET_WRAPPER}/${CATEGORY}"
     done
-    
-#    mapfile -t SS_CATEGORY_ARRAY < categories.config
-    
-}
-
-# Globals used: $SS_IS_ITEM_CATEGORY
-# $SS_CATEGORY_ARRAY
-# Takes a category name, flips the boolean true if it's a category, false if not.
-#
-SS_Determine_If_Category()
-{
-    
-    # We assume false for safety.
-    #
-    SS_IS_ITEM_CATEGORY=false
-    
-    local SS_LINE
-    
-    for SS_LINE in "${SS_CATEGORY_ARRAY[@]}"; do
-        if [[ $SS_LINE == "%$SS_NEXT_CATEGORY" ]]; then
-            SS_IS_ITEM_CATEGORY=true
-            break
-        fi
-    done
+    SS_TARGET_WRAPPER="${SS_TARGET_WRAPPER%/}.wrap"
     
 }
-
-SS_Display_Script()
-{
-    echo -n "NYI"
-}
-
+ 
 SS_Display_Item()
 {
     
-    SS_Determine_If_Category
+    local IS_ITEM_CATEGORY=false
     
-    if [[ "$SS_IS_ITEM_CATEGORY" == true ]]; then
+    local LINE
+    for LINE in "${SS_CATEGORY_ARRAY[@]}"; do
+        if [[ $LINE == "%$SS_NEXT_ITEM" ]]; then
+            IS_ITEM_CATEGORY=true
+            break
+        fi
+    done
+ 
+    if [[ "$IS_ITEM_CATEGORY" == true ]]; then
         SS_Display_Category
     else
         SS_Display_Script
     fi
     
 }
-
+ 
 SS_Display_Category()
 {
     
@@ -99,7 +93,7 @@ SS_Display_Category()
     
     local LINE_INDEX
     for (( LINE_INDEX=0; LINE_INDEX < ${#SS_CATEGORY_ARRAY[@]}; LINE_INDEX++ )); do
-        if [[ ${SS_CATEGORY_ARRAY[$LINE_INDEX]} =~ ^%$SS_NEXT_CATEGORY$ ]]; then
+        if [[ ${SS_CATEGORY_ARRAY[$LINE_INDEX]} =~ ^%$SS_NEXT_ITEM$ ]]; then
             START_LINE=$LINE_INDEX
             FOUND_NEXT_CATEGORY=true
         elif [[ "$FOUND_NEXT_CATEGORY" == true ]] && [[ ${SS_CATEGORY_ARRAY[$LINE_INDEX]} =~ ^%.+ ]]; then
@@ -116,92 +110,269 @@ SS_Display_Category()
     local CATEGORY_ITEM_TITLES=( "${CATEGORY_ITEMS[@]%%::*}" )
     local CATEGORY_ITEM_DESCRIPTIONS=( "${CATEGORY_ITEMS[@]##*::}" )
     
-    local CATEGORY_ITEMS_SIZE=${#CATEGORY_ITEMS[@]}
-    local SIZE_NUMBER_LENGTH=${#CATEGORY_ITEMS_SIZE}
+    # We will need the longest number and title for constructing a properly formatted menu.
+    #
+    local NUMBER_OF_ITEMS_IN_CATEGORY=${#CATEGORY_ITEMS[@]}
+    local LONGEST_NUMBER_LENGTH=${#NUMBER_OF_ITEMS_IN_CATEGORY}
     
+    # We do a loop to find the longest title. It doesn't matter what it is, we just need its length.
+    #
     local TITLE
-    
     for TITLE in "${CATEGORY_ITEM_TITLES[@]}"; do
         local TITLE_LENGTHS[${#TITLE}]="$TITLE"
     done
     
-    local LONGEST_WORD=${TITLE_LENGTHS[@]: -1}
-    local LONGEST_WORD_SIZE=${#LONGEST_WORD}
+    local LONGEST_TITLE=${TITLE_LENGTHS[@]: -1}
+    local LONGEST_WORD_LENGTH=${#LONGEST_TITLE}
+    
+    # Now we begin construction of the menu. <<<<<<<<<<<<<<<<<<<<<<
     
     echo
     echo
-    echo ===========================================================
-    echo $SS_NEXT_CATEGORY
-    echo ===========================================================
+    echo ======================================================================
+    echo ${SS_NEXT_ITEM:-scripting_system}
+    echo ======================================================================
     echo
     
     local PERMANENT_PADDING=".........."
+    local ITERATION
     
+    # This is the loop which constructs each menu item.
+    #
     local ITEM_NUMBER
-    
     for ITEM_NUMBER in ${!CATEGORY_ITEMS[@]}; do
-        local IDENTIFICATION_NUMBER=$(( $ITEM_NUMBER + 1 ))
+        
+        unset NUMBER_PADDING
+        unset TITLE_PADDING
+        
+        local SELECTION_NUMBER=$(( $ITEM_NUMBER + 1 ))
         local ITEM_TITLE=${CATEGORY_ITEM_TITLES[$ITEM_NUMBER]}
         
-        unset IDENTIFIER
-        
-        local ITERATION
-        for (( ITERATION=0; ITERATION < $SIZE_NUMBER_LENGTH - ${#IDENTIFICATION_NUMBER}; ITERATION++ )); do
-            IDENTIFIER="$IDENTIFIER "
+        for (( ITERATION=0; ITERATION < $LONGEST_NUMBER_LENGTH - ${#SELECTION_NUMBER}; ITERATION++ )); do
+            NUMBER_PADDING="$NUMBER_PADDING "
         done
         
-        IDENTIFIER="$IDENTIFICATION_NUMBER$IDENTIFIER - "
-        
-        local PADDING_SIZE=$(( ${LONGEST_WORD_SIZE} - ${#ITEM_TITLE} ))
-        
-        unset PADDING
-        
-        for (( ITERATION=0; ITERATION < $PADDING_SIZE; ITERATION++ )); do
-            PADDING="${PADDING}."
+        for (( ITERATION=0; ITERATION < $LONGEST_WORD_LENGTH - ${#ITEM_TITLE}; ITERATION++ )); do
+            TITLE_PADDING="${TITLE_PADDING}."
         done
         
-        local INDENT="    "
-
-        echo "$INDENT$IDENTIFIER${CATEGORY_ITEM_TITLES[$ITEM_NUMBER]} $PADDING$PERMANENT_PADDING ${CATEGORY_ITEM_DESCRIPTIONS[$ITEM_NUMBER]}"
+        echo "${SS_INDENT}${SELECTION_NUMBER}${NUMBER_PADDING} - ${CATEGORY_ITEM_TITLES[$ITEM_NUMBER]} ${TITLE_PADDING}${PERMANENT_PADDING} ${CATEGORY_ITEM_DESCRIPTIONS[$ITEM_NUMBER]}"
+        
     done
     
-    echo
-    echo "$INDENT----"
-    echo "${INDENT}p  - return to previous menu"
-    echo "${INDENT}q  - quit"
+    echo "${SS_INDENT}----"
+    echo "${SS_INDENT}!  - run most recent script"
+    echo "${SS_INDENT}p  - return to previous menu"
+    echo "${SS_INDENT}q  - quit"
     echo
     
+    local SELECTION
     read -p "Select an option: " SELECTION
     
     #PURPOSEFUL STRING COMPARISON; NOT INTEGER COMPARISON
     if [[ "$SELECTION" == "0" ]]; then
-        SS_NEXT_CATEGORY=$ITEM_TITLE
-        echo will redisplay ourselves, do not push to stack
+        :
     elif [[ $SELECTION =~ ^[[:digit:]]+$ ]]; then
         if [[ $SELECTION -le ${#CATEGORY_ITEMS[@]} ]]; then
-            echo ${CATEGORY_ITEM_TITLES[$SELECTION - 1]} will be the next menu
-            SS_Go_Next_Category "${CATEGORY_ITEM_TITLES[$SELECTION - 1]}"
+            SS_Push_Category "${CATEGORY_ITEM_TITLES[$SELECTION - 1]}"
         else
-            echo not a valid selection for this menu
+            echo "Not a valid selection for this menu."
         fi
-        elif [[ "$SELECTION" =~ ^[pq]$ ]]; then
+    elif [[ "$SELECTION" =~ ^[!pq]$ ]]; then
             case "$SELECTION" in
+                !)
+                    echo -n "NYI"
+                    ;;
                 p)
-                    SS_Go_Previous_Category
+                    SS_Pop_Category
                     ;;
                 q)
                     SS_IS_DISPLAYING_MENUS=false
                     exit 0
                     ;;
             esac
-        else
-            echo that was not valid input and you know it
-        fi
+    else
+        echo "That input was completely invalid."
+    fi
     
 }
+ 
+SS_Display_Script()
+{
+    
+    SS_Compute_Target_Wrapper
+    
+    echo
+    echo
+    echo ======================================================================
+    echo $SS_NEXT_ITEM
+    echo ======================================================================
+    echo
+    echo "${SS_INDENT}r  - run"
+    echo "${SS_INDENT}e  - edit"
+    echo "${SS_INDENT}w  - edit wrapper file"
+    echo "${SS_INDENT}b  - run & return (background)"
+    echo "${SS_INDENT}v  - edit & return (view)"
+    echo "${SS_INDENT}m  - edit wrapper file & return (modify)"
+    echo "${SS_INDENT}----"
+    echo "${SS_INDENT}p  - return to previous menu"
+    echo "${SS_INDENT}q  - quit"
+    echo
+    
+    local SELECTION
+    read -p "Select an option: " SELECTION
+ 
+    case "$SELECTION" in
+        r)
+            SS_IS_DISPLAYING_MENUS=false
+            SS_Parse_Wrapper
+            SS_Execute_Wrapper
+#            $SS_SCRIPT_LOCATION
+            ;;
+        e)
+            SS_IS_DISPLAYING_MENUS=false
+            SS_Parse_Wrapper
+            $EDITOR "$SS_SCRIPT_LOCATION"
+            ;;
+        w)
+            SS_IS_DISPLAYING_MENUS=false
+            $EDITOR "$SS_TARGET_WRAPPER"
+            ;;
+        b)
+            SS_Parse_Wrapper
+#            $SS_SCRIPT_LOCATION
+            SS_Execute_Wrapper
+            ;;
+        v)
+            SS_Parse_Wrapper
+            $EDITOR "$SS_SCRIPT_LOCATION"
+            ;;
+        m)
+            $EDITOR "$SS_TARGET_WRAPPER"
+            ;;
+        p)
+            SS_Pop_Category
+            ;;
+        q)
+            SS_IS_DISPLAYING_MENUS=false
+            exit 0
+            ;;
+        *)
+            echo "That input was invalid."
+            ;;
+    esac
+    
+}
+ 
+SS_Execute_Wrapper()
+{
+    
+    SS_Check_Dependencies
+    
+    if [[ "$SS_IS_MISSING_DEPENDENCIES" == true ]]; then
+        echo Dependencies were not met, returning from execute_wrapper
+    fi
 
+    if [[ "$SS_USE_MOLLYGUARD" == true ]]; then
+        echo $SS_MOLLYGUARD_MESSAGE
+    fi
+
+    #Options
+    echo now we would show options
+    
+    #Final check
+    echo now we would do a final check
+    
+    #Mollyguard
+    echo mollyguards go here
+    
+}
+ 
+SS_Check_Dependencies()
+{
+    
+    local -A MISSING_DEPENDENCIES
+    
+    local FILE_TO_CHECK
+    for FILE_TO_CHECK in "${SS_DEPENDENCIES[@]}"; do
+        if [[ ! -e $FILE_TO_CHECK ]]; then
+            MISSING_DEPENDENCIES[$FILE_TO_CHECK]="$FILE_TO_CHECK"
+        fi
+    done
+     
+    if [[ ${#MISSING_DEPENDENCIES[@]} -gt 0 ]]; then
+        SS_IS_MISSING_DEPENDENCIES=true
+        local MISSING_FILE
+        for MISSING_FILE in "${MISSING_DEPENDENCIES[@]}"; do
+            echo "Dependency not satisfied: $MISSING_FILE is missing."
+        done
+    fi
+     
+}
+ 
+SS_Parse_Wrapper()
+{
+    
+    local RAW_WRAPPER_FILE_ARRAY
+    
+    mapfile -t RAW_WRAPPER_FILE_ARRAY < "$SS_TARGET_WRAPPER"
+    
+    local DEPENDENCY_COUNT
+    local OPTION_KEY
+    
+    local RAW_LINE
+    for RAW_LINE in "${RAW_WRAPPER_FILE_ARRAY[@]}"; do
+        if [[ !($RAW_LINE =~ ^#.*) ]] && [[ !($RAW_LINE =~ ^$) ]]; then
+            if [[ ${RAW_LINE%%=*} == "location" ]]; then
+                SS_SCRIPT_LOCATION="${RAW_LINE##*=}"
+            elif [[ ${RAW_LINE%%=*} == "dependency" ]]; then
+                DEPENDENCY_COUNT=$(( $DEPENDENCY_COUNT + 1 ))
+                SS_DEPENDENCIES[$DEPENDENCY_COUNT]="${RAW_LINE##*=}"
+            elif [[ $RAW_LINE =~ option_* ]]; then
+                OPTION_KEY=${RAW_LINE%%=*}
+                OPTION_KEY=${OPTION_KEY//option_/}
+                SS_OPTIONS[$OPTION_KEY]=${RAW_LINE##*=}
+            elif [[ $RAW_LINE == mollyguard* ]]; then
+                SS_USE_MOLLYGUARD=true
+                SS_MOLLYGUARD_MESSAGE=${RAW_LINE##*::}
+            fi
+        fi
+    done
+    
+}
+ 
+SS_Read_Categories_File()
+{
+    
+    local RAW_CATEGORY_FILE_ARRAY
+    
+    mapfile -t RAW_CATEGORY_FILE_ARRAY < ss_category_config
+    
+    local INDEX_IN_TARGET=0
+    
+    local RAW_LINE
+    for RAW_LINE in "${RAW_CATEGORY_FILE_ARRAY[@]}"; do
+        if [[ !($RAW_LINE =~ ^#.*) ]] && [[ !($RAW_LINE =~ ^$) ]]; then
+            SS_CATEGORY_ARRAY[$INDEX_IN_TARGET]="$RAW_LINE"
+            INDEX_IN_TARGET=$(( $INDEX_IN_TARGET + 1 ))
+        fi
+    done
+    
+}
+ 
+SS_INDENT="    "
+SS_LIBRARY_DIRECTORY="library"
+SS_IS_MISSING_DEPENDENCIES=false
+declare -A SS_OPTIONS
+ 
+if [[ -z $EDITOR ]]; then
+    EDITOR="vim"
+fi
+ 
 SS_Read_Categories_File
+ 
 SS_IS_DISPLAYING_MENUS=true
 while [[ "$SS_IS_DISPLAYING_MENUS" == true ]]; do
-    SS_Display_Item "$SS_NEXT_CATEGORY"
+#    printf "\033c"
+    SS_Display_Item
 done
