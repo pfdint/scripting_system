@@ -9,7 +9,7 @@
  
 # Be respectful.
 # Be generous.
-# Be Helpful.
+# Be helpful.
  
 set -o errexit
  
@@ -149,7 +149,7 @@ SS_Display_Category()
         local ITEM_TITLE=${CATEGORY_ITEM_TITLES[$ITEM_NUMBER]}
         
         for (( ITERATION=0; ITERATION < $LONGEST_NUMBER_LENGTH - ${#SELECTION_NUMBER}; ITERATION++ )); do
-            NUMBER_PADDING="$NUMBER_PADDING "
+            NUMBER_PADDING="${NUMBER_PADDING} "
         done
         
         for (( ITERATION=0; ITERATION < $LONGEST_WORD_LENGTH - ${#ITEM_TITLE}; ITERATION++ )); do
@@ -225,13 +225,10 @@ SS_Display_Script()
     case "$SELECTION" in
         r)
             SS_IS_DISPLAYING_MENUS=false
-            SS_Parse_Wrapper
             SS_Execute_Wrapper
-#            $SS_SCRIPT_LOCATION
             ;;
         e)
             SS_IS_DISPLAYING_MENUS=false
-            SS_Parse_Wrapper
             $EDITOR "$SS_SCRIPT_LOCATION"
             ;;
         w)
@@ -239,12 +236,9 @@ SS_Display_Script()
             $EDITOR "$SS_TARGET_WRAPPER"
             ;;
         b)
-            SS_Parse_Wrapper
-#            $SS_SCRIPT_LOCATION
             SS_Execute_Wrapper
             ;;
         v)
-            SS_Parse_Wrapper
             $EDITOR "$SS_SCRIPT_LOCATION"
             ;;
         m)
@@ -267,16 +261,19 @@ SS_Display_Script()
 SS_Execute_Wrapper()
 {
     
+    SS_Parse_Wrapper
+    
     SS_Check_Dependencies
     
     if [[ "$SS_IS_MISSING_DEPENDENCIES" == true ]]; then
-        echo Dependencies were not met, returning from execute_wrapper
+        return 0
     fi
 
     if [[ "$SS_USE_MOLLYGUARD" == true ]]; then
+        echo
         echo $SS_MOLLYGUARD_MESSAGE
     fi
-
+    
     #Options
     echo now we would show options
     
@@ -308,6 +305,14 @@ SS_Check_Dependencies()
         done
     fi
      
+}
+
+SS_Show_Options()
+{
+    
+    #for each option key, we present the prompt
+    #we take the imput for the prompt, and store it in the arguments assoc array
+    
 }
  
 SS_Parse_Wrapper()

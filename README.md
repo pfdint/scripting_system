@@ -25,6 +25,7 @@
 ### Other points:
 * You _will_ need to write simple wrapper files for your scripts.
 * There are NO dependencies other than Bash >= 4.2 . It's all done using builtins.
+* Obviously, you will need an editor to edit your files, though.
 * ss is not for testing or debugging.
 * ss is not for scheduling of scripts.
 * do not apply to forehead.
