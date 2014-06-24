@@ -312,6 +312,7 @@ SS_Show_Options()
     
     #for each option key, we present the prompt
     #we take the imput for the prompt, and store it in the arguments assoc array
+    #print out script name, option key and its value, if no value, use default.
     
 }
  
