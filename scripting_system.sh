@@ -2,7 +2,7 @@
 # scripting_system.sh
 # by pfdint
 # created: 2014-05-18
-# modified: 2014-06-21
+# modified: 2014-06-24
 # purpose: the master ss executable. currently displays menus and stuff.
  
 # If we want users to like our software we should design it to behave like a likeable person: respectful, generous, and helpful. - Alan Cooper
@@ -22,17 +22,6 @@ SS_Debug()
     
 }
 
-SS_Debug_Stack()
-{
-    
-    echo ===
-    for i in "${SS_CATEGORY_HISTORY[@]}"; do
-        echo $i
-    done
-    echo ===
-    
-}
- 
 SS_Push_Category()
 {
     
@@ -211,8 +200,8 @@ SS_Display_Script()
     echo "${SS_INDENT}r  - run"
     echo "${SS_INDENT}e  - edit"
     echo "${SS_INDENT}w  - edit wrapper file"
-    echo "${SS_INDENT}b  - run & return (background)"
-    echo "${SS_INDENT}v  - edit & return (view)"
+    echo "${SS_INDENT}b  - run & return               (background)"
+    echo "${SS_INDENT}v  - edit & return              (view)"
     echo "${SS_INDENT}m  - edit wrapper file & return (modify)"
     echo "${SS_INDENT}----"
     echo "${SS_INDENT}p  - return to previous menu"
@@ -268,20 +257,29 @@ SS_Execute_Wrapper()
     if [[ "$SS_IS_MISSING_DEPENDENCIES" == true ]]; then
         return 0
     fi
-
+    
     if [[ "$SS_USE_MOLLYGUARD" == true ]]; then
         echo
         echo $SS_MOLLYGUARD_MESSAGE
     fi
     
-    #Options
-    echo now we would show options
+    SS_Query_For_Options
     
-    #Final check
-    echo now we would do a final check
+    local FINAL_ANSWER
+    echo "The following command will be executed."
+    echo ${SS_FINAL_COMMAND}
+    echo "Is this okay? [y/N] "
+    read FINAL_ANSWER
+    
+    if [[ "$FINAL_ANSWER" == "y" ]]; then
+        echo okay then!
+    else
+        echo "### Execution cancelled. ###"
+        return 0
+    fi
     
     #Mollyguard
-    echo mollyguards go here
+    echo mollyguard goes here
     
 }
  
@@ -307,12 +305,31 @@ SS_Check_Dependencies()
      
 }
 
-SS_Show_Options()
+SS_Query_For_Options()
 {
     
-    #for each option key, we present the prompt
-    #we take the imput for the prompt, and store it in the arguments assoc array
-    #print out script name, option key and its value, if no value, use default.
+    local COMMAND
+    local INPUT_ARGUMENT
+    local KEY
+    for KEY in "${!SS_OPTIONS[@]}"; do
+        echo -en "${SS_OPTIONS[$KEY]%%::*}"
+        if [[ "${SS_OPTIONS[$KEY]}" =~ .*::.* ]]; then
+            read INPUT_ARGUMENT
+            local DEFAULT_VALUE="${SS_OPTIONS[$KEY]##*::}"
+            COMMAND="${COMMAND} ${KEY} ${INPUT_ARGUMENT:-${DEFAULT_VALUE}}"
+        else
+            read -p "[y/N] " INPUT_ARGUMENT
+            if [[ "$INPUT_ARGUMENT" =~ [Yy]|Yes ]]; then
+                COMMAND="${COMMAND} ${KEY}"
+            fi
+        fi
+    done
+#        echo -e "${SS_OPTIONS[$KEY]%%::*}"
+#        read INPUT_ARGUMENT
+#        local DEFAULT_VALUE="${SS_OPTIONS[$KEY]##*::}"
+#        COMMAND="${COMMAND} ${KEY} ${INPUT_ARGUMENT:-$DEFAULT_VALUE}"
+#    done
+    SS_FINAL_COMMAND="${SS_SCRIPT_LOCATION}${COMMAND}"
     
 }
  
