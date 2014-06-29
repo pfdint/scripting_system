@@ -1,0 +1,8 @@
+location=/home/pfdint/ss.d/library/Scripts/modularize_pdf.sh
+
+dependency=/usr/bin/pdfseparate
+dependency=/usr/bin/pdfunite
+
+option_-f=The pdf file to operate on. ::
+option_-g=The number of pages to put in each module. ::
+option_-o=The name of the output file. Can be left blank for same name as input file. ::

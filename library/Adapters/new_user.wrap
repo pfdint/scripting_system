@@ -1,0 +1,7 @@
+location=/home/pfdint/ss.d/library/Adapters/new_user.sh
+
+dependency=/usr/bin/find
+dependency=/usr/bin/sed
+
+option_-o=The original user. [pfdint] ::pfdint
+option_-n=The user to change to. Can be left blank for current user. ::

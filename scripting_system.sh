@@ -1,7 +1,8 @@
-cripting_system.sh
+#!/bin/bash
+# scripting_system.sh
 # by pfdint
 # created: 2014-05-18
-# modified: 2014-06-26
+# modified: 2014-06-29
 # purpose: the master ss executable. currently displays menus and stuff.
  
 # If we want users to like our software we should design it to behave like a likeable person: respectful, generous, and helpful. - Alan Cooper

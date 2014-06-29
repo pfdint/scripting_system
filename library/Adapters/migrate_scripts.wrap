@@ -1,0 +1,6 @@
+location=/home/pfdint/ss.d/library/Adapters/migrate_scripts.sh
+
+dependency=/usr/bin/find
+dependency=/usr/bin/grep
+dependency=/usr/bin/cp
+dependency=/usr/bin/sed

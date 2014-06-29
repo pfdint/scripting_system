@@ -1,0 +1,38 @@
+# This is a wrapper file.
+# Comments are lines beginning with #
+# This file can also have empty lines.
+# Four kinds of lines can be specified:
+# location, dependency, option, mollyguard
+
+# 'location' is the absolute path of the executable this wrapper is for. There
+#   should only be one of these per file; if there are more, the last one is used.
+location=/home/pfdint/ss.d/scripting_system.sh
+
+# 'dependency' defines a file or directory which must be present in order for
+#   the script to execute. Only absolute paths work.
+dependency=/home/pfdint/ss.d/library
+dependency=/home/pfdint/ss.d/ss_category_config
+dependency=/usr/bin/ls
+
+# 'option' defines an option the script uses. These should be commented and
+#   uncommented as necessary before you execute the script, depending on which
+#   options you wish to be prompted for.
+#   Options begin with 'option_' and then the command line option is given, with
+#   the dashes it needs. Then it has the prompt, which does interpret /n as a
+#   newline, if you need it. This is where you can tell the user some common usages.
+#   The prompt ends with :: if it is an option that takes an argument. If you would
+#   like this option to have a default value, you can put it after the ::. It is
+#   wise to show that this is the default in your prompt. If the option is a binary
+#   flag, leave off the :: .
+option_-c=The category file to use. [/home/pfdint/ss.d/ss_category_config] ::/home/pfdint/ss.d/ss_category_config
+option_-l=The location of the library directory, the repository of scripts. [/home/pfdint/ss.d/library] ::/home/pfdint/ss.d/library
+#option_-s=The selection to use, in the form of 1-3-1, the menus you would navigate through to execute a script. ::
+#option_-m=To acknowledge a mollyguard, allows you to run a dangerous script non interactively.
+#option_--version=This isn't actually usable, it's just an example.
+
+# 'mollyguard' can be used if this script is a dangerous one. It will activate
+#   warnings and safety features to prevent accidental or careless execution of
+#   the script. Use just 'mollyguard' as a line to use the default warning message.
+#   Use 'mollyguard=' as a line to set the message to empty, or specify the message
+#   after the = .
+#mollyguard
