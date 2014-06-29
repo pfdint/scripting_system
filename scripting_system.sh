@@ -16,7 +16,7 @@
 #   Option menus
 #   Implement common functionality
 #   Create obfuscator (internal)
-#   Create standardizer
+#   Create adapter scripts
  
 # Globals currently in use:
 # IFS
@@ -104,6 +104,7 @@ SS_Take_Own_Options()
 #     m SS_CATEGORY_FILE
 #     m SS_INDENT
 #     m SS_LIBRARY_DIRECTORY
+#     m SS_OPTIONS
 #
 ####################################################################
 #
@@ -121,7 +122,7 @@ SS_Initialize()
     
     SS_LIBRARY_DIRECTORY="${SS_WORKING_DIRECTORY}library"
     
-#    declare -Ag SS_OPTIONS
+    declare -Ag SS_OPTIONS
     
 }
 
@@ -350,7 +351,6 @@ SS_Display_Category()
 #-Begin-outputting-the-menu------------------------------------------
     
     echo
-    echo
     echo ======================================================================
     echo ${SS_NEXT_ITEM:-scripting_system}
     echo ======================================================================
@@ -393,6 +393,7 @@ SS_Display_Category()
     
     local SELECTION
     read -p "Select an option: " SELECTION
+    echo
     
     #PURPOSEFUL STRING COMPARISON; NOT INTEGER COMPARISON
     if [[ "$SELECTION" == "0" ]]; then
@@ -442,14 +443,15 @@ SS_Display_Category()
 SS_Display_Script()
 {
     
-#-Set-up-an-important-environment-variable---------------------------
+#-Set-up-important-environment-variables-----------------------------
     
     SS_Compute_Target_Wrapper
+    
+    SS_Parse_Wrapper
     
 #--------------------------------------------------------------------
 #-Output-the-menu----------------------------------------------------
     
-    echo
     echo
     echo ======================================================================
     echo $SS_NEXT_ITEM
@@ -471,6 +473,7 @@ SS_Display_Script()
     
     local SELECTION
     read -p "Select an option: " SELECTION
+    echo
  
     case "$SELECTION" in
         r)
@@ -528,8 +531,6 @@ SS_Display_Script()
 SS_Execute_Wrapper()
 {
     
-    SS_Parse_Wrapper
-    
     SS_Record_Wrapper
     
     if SS_Is_Script_Missing_Dependencies ; then
@@ -546,6 +547,7 @@ SS_Execute_Wrapper()
     echo "The following command will be executed."
     echo ${SS_FINAL_COMMAND}
     read -p "Is this okay? [y/N] " FINAL_ANSWER
+    echo
     
     if ! [[ $FINAL_ANSWER =~ ^[Yy](es)?$ ]]; then
         echo "### Execution cancelled. ###"
@@ -557,7 +559,7 @@ SS_Execute_Wrapper()
     fi
 
     $SS_FINAL_COMMAND
-    
+
 }
 
 ####################################################################
@@ -806,6 +808,9 @@ SS_Parse_Wrapper()
     
     local DEPENDENCY_COUNT
     local OPTION_KEY
+
+    unset SS_OPTIONS
+    declare -Ag SS_OPTIONS
     
     local RAW_LINE
     for RAW_LINE in "${RAW_WRAPPER_FILE_ARRAY[@]}"; do
@@ -874,10 +879,6 @@ SS_Read_Category_File()
 
 # Also remember to see if : -1} can be changed to a direct access in 4.2
  
-# This line will be removed, which will cause the required bash version to rise to 4.2
-# For now, it stays for convenience.
-declare -A SS_OPTIONS
-
 SS_Initialize
 
 SS_Take_Own_Options

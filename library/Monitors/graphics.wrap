@@ -1,0 +1,7 @@
+location=/home/pfdint/ss.d/library/Monitors/graphics.sh
+
+dependency=/usr/bin/tee
+dependency=/usr/bin/cat
+dependency=/proc/acpi/bbswitch
+
+option_--dummy=Enter 'on' or 'off' to turn the switch, or nothing to just read it. Press enter on this option.

@@ -1,6 +1,6 @@
 location=/home/pfdint/ss.d/library/Macros/nt_hash.sh
 
-option_--fail=Enter the password as an additional option in the next prompt. Press N for this one: 
+option_--fail=Enter the password as an additional option in the next prompt. Press enter on this option.
 
 dependency=/usr/bin/iconv
 dependency=/usr/bin/openssl

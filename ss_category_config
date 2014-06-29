@@ -1,7 +1,7 @@
 # This is the default category file. You may change it however you wish.
 %
-Adapters::Scripts to adapt ss to new environments.
-Scripts::General tools.
+Adapters::Scripts to adapt ss to new environments. Use these on a fresh install of ss!
+Tools::General tools.
 Monitors::Scripts to check things.
 Timers::Things what keep track of time.
 Macros::Optionless scripts.
@@ -10,11 +10,15 @@ scripting_system::The scripting system itself.
 %Adapters
 migrate_scripts::Use this to copy all the scripts you have wrappers for into the ss library.
 new_user::Use this to make all ss wrappers point to your home directory. Useful for fresh installs.
-%Scripts
+%Tools
 modularize_pdf::Break up pdfs into pdfs of fewer pages.
 %Monitors
+graphics::Check or change the state of the bbswitch.
 thermal_check::Prints out temperature information.
 %Timers
+bedtime::A voice countdown timer to make sure you don't play Minecraft past your bedtime.
+timer::A voice timer which tells you the minutes passed by a specified interval.
 %Macros
 nt_hash::Create md4 hashes for use in wpa radius conf files and the like.
 %Facades
+tar::A wrapper for the tar utility.

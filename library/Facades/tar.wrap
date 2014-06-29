@@ -1,0 +1,10 @@
+location=/usr/bin/tar
+
+dependency=/usr/bin/tar
+
+option_-c=Are we creating an archive? 
+option_-x=Are we extracting from an archive? 
+option_-v=Verbose? 
+option_-z=Create with compression? 
+option_-f=And finally, the target archive. ::
+#option_--exclude=Pattern to exclude. ::
