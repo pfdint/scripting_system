@@ -13,7 +13,7 @@ fi
 originalUser="pfdint"
 newUser="$(whoami)"
 
-while getopts "o:n:" OPTION; do
+while getopts ":o:n:" OPTION; do
     case $OPTION in
         o)  originalUser="$OPTARG";;
         n)  newUser="$OPTARG";;
@@ -23,5 +23,5 @@ done
 echo "Changing $originalUser to $newUser"
 
 for file in $(find ./library -name \*.wrap -print); do
-    sed -i "/$originalUser/$newUser/g" "$file"
+    sed -i "s/$originalUser/$newUser/g" "$file"
 done

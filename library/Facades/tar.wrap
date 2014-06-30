@@ -1,6 +1,6 @@
 location=/usr/bin/tar
 
-dependency=/usr/bin/tar
+dependency=/bin/tar
 
 option_-c=Are we creating an archive? 
 option_-x=Are we extracting from an archive? 

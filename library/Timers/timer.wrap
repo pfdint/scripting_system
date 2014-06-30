@@ -1,6 +1,6 @@
 location=/home/pfdint/ss.d/library/Timers/timer.sh
 
-dependency=/usr/bin/espeak
-dependency=/usr/bin/sleep
+dependency=/bin/espeak
+dependency=/bin/sleep
 
 option_-i=The interval to notify, in minutes. [5] ::5

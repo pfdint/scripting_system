@@ -3,7 +3,7 @@
 # by pfdint
 # created: 2014-05-18
 # modified: 2014-06-29
-# purpose: the master ss executable. currently displays menus and stuff.
+# purpose: the master ss executable.
  
 # If we want users to like our software we should design it to behave like a likeable person: respectful, generous, and helpful. - Alan Cooper
  
@@ -12,9 +12,9 @@
 # Be helpful.
 
 #TODO:
-#   Static (command line) execution using options
+#   Static (command line) execution using options (-s)
 #   Option menus
-#   Implement common functionality
+#   Implement common functionality (ss_common)
 #   Create obfuscator (internal)
 #   Create adapter scripts
  
@@ -245,7 +245,7 @@ SS_Has_Own_Dependencies()
 {
     
     while [[ $# -gt 0 ]]; do
-        local REPORT="$(type "$1")"
+        local REPORT="$(type "$1" 2>&1)"
         if [[ $REPORT =~ not\ found ]]; then
             return $SS_RC_FAILURE
         fi

@@ -1,6 +1,6 @@
 location=/home/pfdint/ss.d/library/Monitors/thermal_check.sh
 
-dependency=/usr/bin/gawk
-dependency=/usr/bin/grep
-dependency=/usr/bin/sensors
-dependency=/usr/bin/optirun
+dependency=/bin/gawk
+dependency=/bin/grep
+dependency=/bin/sensors
+dependency=/bin/optirun

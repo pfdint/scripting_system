@@ -1,9 +1,9 @@
 location=/home/pfdint/ss.d/library/Timers/bedtime.sh
 
-dependency=/usr/bin/espeak
-dependency=/usr/bin/ps
-dependency=/usr/bin/sh
-dependency=/usr/bin/gawk
-dependency=/usr/bin/sleep
+dependency=/bin/espeak
+dependency=/bin/ps
+dependency=/bin/sh
+dependency=/bin/gawk
+dependency=/bin/sleep
 
 option_-t=Specify the time (24 hour format) as #### . ::
