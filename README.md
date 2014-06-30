@@ -31,6 +31,7 @@
 
 ### Installation instructions:
 It is strongly advised you not change any of the paths in these instructions until _after_ you have a working installation.
+
 1. Go to your home directory.
 2. git clone https://github.com/pfdint/scripting_system.git
 3. mv scripting_system ss.d
@@ -42,4 +43,5 @@ It is strongly advised you not change any of the paths in these instructions unt
 9. Replace 'pfdint' in the location with your own username.
 10. Close the editor.
 11. Select r or b to run the script.
-If any dependencies are 'missing', try editing the wrapper file and commenting or deleting out those lines if you actually do have those dependencies. There's no way to know where these things will be kept on your machine!
+
+If any dependencies are 'missing', try editing the wrapper file and commenting or deleting out those lines if you actually do have those dependencies. There's no way to be sure where these executables will be kept on your machine!
