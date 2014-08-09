@@ -11,6 +11,7 @@ scripting_system::The scripting system itself.
 migrate_scripts::Use this to copy all the scripts you have wrappers for into the ss library.
 new_user::Use this to make all ss wrappers point to your home directory. Useful for fresh installs.
 %Tools
+new_script::Template for new bash scripts.
 modularize_pdf::Break up pdfs into pdfs of fewer pages.
 %Monitors
 graphics::Check or change the state of the bbswitch.

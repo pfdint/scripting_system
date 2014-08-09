@@ -2,7 +2,7 @@
 # scripting_system.sh
 # by pfdint
 # created: 2014-05-18
-# modified: 2014-06-29
+# modified: 2014-08-08
 # purpose: the master ss executable.
  
 # If we want users to like our software we should design it to behave like a likeable person: respectful, generous, and helpful. - Alan Cooper
@@ -12,11 +12,10 @@
 # Be helpful.
 
 #TODO:
-#   Static (command line) execution using options (-s)
 #   Option menus
 #   Implement common functionality (ss_common)
-#   Create obfuscator (internal)
 #   Create adapter scripts
+#   Error catching for static selection
  
 # Globals currently in use:
 # IFS
@@ -79,7 +78,7 @@ SS_Take_Own_Options()
                 SS_LIBRARY_DIRECTORY="$OPTARG"
                 ;;
             s)
-                SS_STATIC_SELECTION="$OPTARG"
+                SS_STATIC_SELECTION="${OPTARG}-"
                 ;;
             m)
                 SS_ACKNOWLEDGE_MOLLYGUARD=true
@@ -285,7 +284,84 @@ SS_Is_Category()
     return $SS_RC_FAILURE
     
 }
- 
+
+####################################################################
+# SS_Make_Static_Selection
+#
+#   arg1 = The selection to operate on.
+#   arg2 = The category we are seeking from.
+#
+#   Recursively operates on a selection string such as 7-12-3-1-
+#   Note that any call to this must have the argument end in a -
+#   or it will loop indefinitely. Also do not pass zeros to it,
+#   or it will loop indefinitely.
+#
+#   Globals used (m is modified):
+#       SS_CATEGORY_ARRAY
+#
+####################################################################
+#
+SS_Make_Static_Selection()
+{
+    
+    # Rename arguments
+    #
+    local SELECTION_ARGUMENT="$1"
+    local ACTIVE_CATEGORY="$2"
+    
+    local LINE_NUMBER
+    for LINE_NUMBER in "${!SS_CATEGORY_ARRAY[@]}"; do
+        if [[ "${SS_CATEGORY_ARRAY[$LINE_NUMBER]}" == "%${ACTIVE_CATEGORY}" ]]; then
+            local SELECTION_NUMBER=$(( $LINE_NUMBER + ${SELECTION_ARGUMENT%%-*} ))
+            local SELECTION="${SS_CATEGORY_ARRAY[$SELECTION_NUMBER]%%::*}"
+            SS_Push_Category "$SELECTION"
+            if SS_Is_Category "${SELECTION}" ; then
+                SS_Make_Static_Selection "${SELECTION_ARGUMENT#*-}" "$SELECTION"
+            else
+                SS_Static_Execute_Script
+            fi
+        fi
+    done
+    
+}
+
+####################################################################
+# SS_Static_Execute_Script
+#
+#   Skips all the pomp and ceremony for options and stuff while
+#   executing the script using the global settings.
+#
+#   Globals used (m is modified):
+#       SS_USE_MOLLYGUARD
+#       SS_ACKNOWLEDGE_MOLLYGUARD
+#       SS_SCRIPT_LOCATION
+#
+####################################################################
+#
+SS_Static_Execute_Script()
+{
+    
+    SS_Compute_Target_Wrapper
+    
+    SS_Parse_Wrapper
+    
+    if [[ "$SS_USE_MOLLYGUARD" == true ]]; then
+        if [[ "$SS_ACKNOWLEDGE_MOLLYGUARD" != true ]]; then
+            echo "This script has a mollyguard. It is a dangerous script. Use the -m option to acknowledge this. Exiting."
+            exit 4
+        fi
+    fi
+    
+    if SS_Is_Script_Missing_Dependencies ; then
+        echo "Script is missing dependencies. Exiting."
+        exit 5
+    fi
+    
+    $SS_SCRIPT_LOCATION
+    exit 0
+    
+}
+
 ####################################################################
 # SS_Display_Category
 #
@@ -874,6 +950,7 @@ SS_Read_Category_File()
 #   Globals used (m is modified):
 #     m SS_IS_DISPLAYING_MENUS
 #       SS_NEXT_ITEM
+#       SS_STATIC_SELECTION
 #
 ####################################################################
 
@@ -881,13 +958,18 @@ SS_Read_Category_File()
  
 SS_Initialize
 
-SS_Take_Own_Options
+SS_Take_Own_Options "$@"
  
 SS_Read_Category_File
+
+if [[ -n "$SS_STATIC_SELECTION" ]]; then
+    SS_Make_Static_Selection "$SS_STATIC_SELECTION" ""
+fi
  
 SS_IS_DISPLAYING_MENUS=true
 while [[ "$SS_IS_DISPLAYING_MENUS" == true ]]; do
 #    printf "\033c"
+    clear
     if SS_Is_Category "$SS_NEXT_ITEM" ; then
         SS_Display_Category
     else
